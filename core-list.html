@@ -248,7 +248,7 @@ should be done via binding to the `selected` property of each model.
         target.style.webkitOverflowScrolling = 'touch';
       }
 
-      this.initializeData();
+      if(this.data) this.initializeData();
     },
 
     initializeData: function() {
