@@ -32,6 +32,7 @@
    viewport to actually be stacked underneath the viewport. */
 #viewport {
   will-change: transform;
+}
 
 .core-list-viewport[grid] {
 	display: flex;

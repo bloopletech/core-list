@@ -8,7 +8,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 -->
 
 <!--
-`core-list` displays a virtual, 'infinite' list. The template inside the 
+`core-list` displays a virtual, 'infinite' list. The template inside the
 `core-list` element represents the dom to create for each list item. The
 `data` property specifies an array of list item data. The `height` property
 represents the fixed height of a list item (variable height list items are
@@ -48,7 +48,7 @@ scope):
       </template>
     </core-list>
 
-By default, the list supports selection via tapping. Styling the selection 
+By default, the list supports selection via tapping. Styling the selection
 should be done via binding to the `selected` property of each model.
 
 @group Polymer Core Elements
@@ -67,18 +67,18 @@ should be done via binding to the `selected` property of each model.
 (function() {
 
   Polymer('core-list', {
-    
+
     publish: {
       /**
        * Fired when an item element is tapped.
-       * 
+       *
        * @event core-activate
        * @param {Object} detail
        *   @param {Object} detail.item the item element
        */
 
       /**
-       * 
+       *
        * An array of source data for the list to display.
        *
        * @attribute data
@@ -88,7 +88,7 @@ should be done via binding to the `selected` property of each model.
       data: null,
 
       /**
-       * 
+       *
        * An optional element on which to listen for scroll events.
        *
        * @attribute scrollTarget
@@ -98,7 +98,7 @@ should be done via binding to the `selected` property of each model.
       scrollTarget: null,
 
       /**
-       * 
+       *
        * Enable grid layout, requires both height and width to be set.
        *
        * @attribute grid
@@ -108,7 +108,7 @@ should be done via binding to the `selected` property of each model.
       grid: false,
 
       /**
-       * 
+       *
        * The height of a list item. `core-list` currently supports only fixed-height
        * list items. This height must be specified via the height property.
        *
@@ -119,7 +119,7 @@ should be done via binding to the `selected` property of each model.
       height: 80,
 
       /**
-       * 
+       *
        * The width of a list item. Must be specified when using grid layout.
        *
        * @attribute height
@@ -129,7 +129,7 @@ should be done via binding to the `selected` property of each model.
       width: 0,
 
       /**
-       * 
+       *
        * The number of extra items rendered above the minimum set required to
        * fill the list's height.
        *
@@ -140,7 +140,7 @@ should be done via binding to the `selected` property of each model.
       extraItems: 30,
 
       /**
-       * 
+       *
        * When true, tapping a row will select the item, placing its data model
        * in the set of selected items retrievable via the `selection` property.
        *
@@ -154,7 +154,7 @@ should be done via binding to the `selected` property of each model.
       selectionEnabled: true,
 
       /**
-       * 
+       *
        * Set to true to support multiple selection.  Note, existing selection
        * state is maintained only when changing `multi` from `false` to `true`;
        * it is cleared when changing from `true` to `false`.
@@ -166,7 +166,7 @@ should be done via binding to the `selected` property of each model.
       multi: false,
 
       /**
-       * 
+       *
        * Data record (or array of records, if `multi: true`) corresponding to
        * the currently selected set of items.
        *
@@ -179,7 +179,7 @@ should be done via binding to the `selected` property of each model.
 
     // Local cache of scrollTop
     _scrollTop: 0,
-    
+
     observe: {
       'data template scrollTarget': 'initialize',
       'multi selectionEnabled': '_resetSelection'
@@ -199,8 +199,8 @@ should be done via binding to the `selected` property of each model.
     },
 
     _resetSelection: function() {
-      if (((this._oldMulti != this.multi) && !this.multi) || 
-          ((this._oldSelectionEnabled != this.selectionEnabled) && 
+      if (((this._oldMulti != this.multi) && !this.multi) ||
+          ((this._oldSelectionEnabled != this.selectionEnabled) &&
             !this.selectionEnabled)) {
         this._clearSelection();
         this.refresh(true);
@@ -211,14 +211,14 @@ should be done via binding to the `selected` property of each model.
       this._oldSelectionEnabled = this.selectionEnabled;
     },
 
-    // TODO(sorvell): it'd be nice to dispense with 'data' and just use 
+    // TODO(sorvell): it'd be nice to dispense with 'data' and just use
     // template repeat's model. However, we need tighter integration
     // with TemplateBinding for this.
     initialize: function() {
       if (!this.template) {
         return;
       }
-      
+
       // TODO(kschaaf): This is currently the only way to know that the array
       // was mutated as opposed to newly assigned; to be updated with better API
       if (arguments.length == 1) {
@@ -251,21 +251,9 @@ should be done via binding to the `selected` property of each model.
       this.initializeData();
     },
 
-
-
-
-
-
-
-
-
-
     initializeData: function() {
-
-
-
-
-
+      var currentCount = this._physicalCount || 0;
+      var dataLen = this.data && this.data.length || 0;
 
       this._extraItems = this.extraItems;
       if (this.grid && this.width > 0) {
@@ -278,26 +266,13 @@ should be done via binding to the `selected` property of each model.
         this._visibleCount = Math.ceil(this._target.offsetHeight / this.height) *
             this._rowCount + this._rowCount;
         this._physicalCount = Math.min(this._visibleCount + this._extraItems,
-            this.data.length);
-        this._physicalHeight = this.height * this._physicalCount / this._rowCount;
-        var numRows = Math.ceil(this.data.length / this._rowCount);
-        this.$.viewport.style.height = this.height * numRows + 'px';
+            dataLen);
       } else {
-        this._visibleCount = Math.ceil(this._target.offsetHeight / this.height + 1);
-        this._physicalCount = Math.min(this._visibleCount + this._extraItems,
-            this.data.length);
-        this._physicalHeight = this.height * this._physicalCount;
-        this.$.viewport.style.height = this.height * this.data.length + 'px';
+        this._visibleCount = Math.ceil(this._target.offsetHeight / this.height);
+        this._physicalCount = Math.min(this._visibleCount + this._extraItems, dataLen);
+        this._physicalCount = Math.max(currentCount, this._physicalCount);
       }
 
-
-
-
-      var currentCount = this._physicalCount || 0;
-      var dataLen = this.data && this.data.length || 0;
-      this._visibleCount = Math.ceil(this._target.offsetHeight / this.height);
-      this._physicalCount = Math.min(this._visibleCount + this.extraItems, dataLen);
-      this._physicalCount = Math.max(currentCount, this._physicalCount);
       this._physicalData = this._physicalData || new Array(this._physicalCount);
       var needItemInit = false;
       while (currentCount < this._physicalCount) {
@@ -331,7 +306,7 @@ should be done via binding to the `selected` property of each model.
       physicalDatum.model = virtualDatum;
       physicalDatum.physicalIndex = physicalIndex;
       physicalDatum.index = virtualIndex;
-      physicalDatum.selected = this.selectionEnabled && virtualDatum ? 
+      physicalDatum.selected = this.selectionEnabled && virtualDatum ?
           this._selectedData.get(virtualDatum) : null;
       var physicalItem = this._physicalItems[physicalIndex];
       physicalItem.hidden = !virtualDatum;
@@ -351,15 +326,22 @@ should be done via binding to the `selected` property of each model.
       // Check that the array hasn't gotten longer since data was initialized
       var dataLen = this.data && this.data.length || 0;
       if (force) {
-        if (this._physicalCount < 
+        if (this._physicalCount <
             Math.min(this._visibleCount + this.extraItems, dataLen)) {
           // Need to add more items; once new data & items are initialized,
           // refresh will be run again
           this.initializeData();
           return;
         }
-        this._physicalHeight = this.height * this._physicalCount;
-        this.$.viewport.style.height = this.height * dataLen + 'px';
+
+        if(this.grid && this.width > 0) {
+          this._physicalHeight = this.height * this._physicalCount / this._rowCount;
+          var numRows = Math.ceil(dataLen / this._rowCount);
+          this.$.viewport.style.height = this.height * numRows + 'px';
+        } else {
+          this._physicalHeight = this.height * this._physicalCount;
+          this.$.viewport.style.height = this.height * dataLen + 'px';
+        }
       }
 
       var scrollTop = this._scrollTop || this._target.scrollTop;
@@ -371,9 +353,9 @@ should be done via binding to the `selected` property of each model.
       }
       var visibleMidpoint = firstVisibleIndex + this._visibleCount / 2;
 
-      var firstReifiedIndex = Math.max(0, Math.floor(visibleMidpoint - 
+      var firstReifiedIndex = Math.max(0, Math.floor(visibleMidpoint -
           this._physicalCount / 2));
-      firstReifiedIndex = Math.min(firstReifiedIndex, dataLen - 
+      firstReifiedIndex = Math.min(firstReifiedIndex, dataLen -
           this._physicalCount);
       firstReifiedIndex = (firstReifiedIndex < 0) ? 0 : firstReifiedIndex;
 
@@ -386,7 +368,7 @@ should be done via binding to the `selected` property of each model.
       } else {
         var baseTransformValue = Math.floor(this.height * baseVirtualIndex);
       }
-      var nextTransformValue = Math.floor(baseTransformValue + 
+      var nextTransformValue = Math.floor(baseTransformValue +
           this._physicalHeight);
 
       var baseTransformString = 'translate3d(0,' + baseTransformValue + 'px,0)';
@@ -422,7 +404,7 @@ should be done via binding to the `selected` property of each model.
         // Gambit: only select the item if the tap wasn't on a focusable child
         // of the list (since anything with its own action should be focusable
         // and not result in result in list selection).  To check this, we
-        // asynchronously check that shadowRoot.activeElement is null, which 
+        // asynchronously check that shadowRoot.activeElement is null, which
         // means the tapped item wasn't focusable. On polyfill where
         // activeElement doesn't follow the data-hinding part of the spec, we
         // can check that document.activeElement is the list itself, which will
@@ -430,17 +412,17 @@ should be done via binding to the `selected` property of each model.
         // the list focusable (tabindex="-1") for this purpose.  Note we also
         // allow the list items themselves to be focusable if desired, so those
         // are excluded as well.
-        var active = window.ShadowDOMPolyfill ? 
+        var active = window.ShadowDOMPolyfill ?
             wrap(document.activeElement) : this.shadowRoot.activeElement;
-        if (active && (active != this) && (active.parentElement != this) && 
+        if (active && (active != this) && (active.parentElement != this) &&
             (document.activeElement != document.body)) {
           return;
         }
         // Unfortunately, Safari does not focus certain form controls via mouse,
         // so we also blacklist input, button, & select
         // (https://bugs.webkit.org/show_bug.cgi?id=118043)
-        if ((p[0].localName == 'input') || 
-            (p[0].localName == 'button') || 
+        if ((p[0].localName == 'input') ||
+            (p[0].localName == 'button') ||
             (p[0].localName == 'select')) {
           return;
         }
@@ -470,7 +452,7 @@ should be done via binding to the `selected` property of each model.
      * Select the list item at the given index.
      *
      * @method selectItem
-     * @param {number} index 
+     * @param {number} index
      */
     selectItem: function(index) {
       if (!this.selectionEnabled) {
@@ -486,8 +468,8 @@ should be done via binding to the `selected` property of each model.
      * Set the selected state of the list item at the given index.
      *
      * @method setItemSelected
-     * @param {number} index 
-     * @param {boolean} isSelected 
+     * @param {number} index
+     * @param {boolean} isSelected
      */
     setItemSelected: function(index, isSelected) {
       var data = this.data[index];
@@ -554,3 +536,4 @@ should be done via binding to the `selected` property of each model.
 })();
 </script>
 </polymer-element>
+
