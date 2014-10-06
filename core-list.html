@@ -327,7 +327,7 @@ should be done via binding to the `selected` property of each model.
       var dataLen = this.data && this.data.length || 0;
       if (force) {
         if (this._physicalCount <
-            Math.min(this._visibleCount + this.extraItems, dataLen)) {
+            Math.min(this._visibleCount + this._extraItems, dataLen)) {
           // Need to add more items; once new data & items are initialized,
           // refresh will be run again
           this.initializeData();
